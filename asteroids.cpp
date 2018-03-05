@@ -4,9 +4,6 @@
 
 //********** Declaration ************//
 
-#define CW   1
-#define CCW -1
-
 class Asteroid;
 
 class Point
@@ -17,7 +14,7 @@ private:
   int y;
 public:
   Point (void);
-  Point (int, int);
+  Point (const int&, const int&);
   int getX (void);
   int getY (void);
 };
@@ -27,16 +24,18 @@ class Asteroid
 private:
   size_t size;
   int rotation;
+  const double pi = acos(-1);
   Point vertex[10];
   Point position;
-  Point getVertex (size_t);
+  Point getVertex (const size_t&);
 public:
-  Asteroid (int, int, size_t);
-  Asteroid (Point, int);
+  Asteroid (void);
+  Asteroid (const int&, const int&, const size_t&);
+  Asteroid (const Point&, const int&);
   int getX (void);
   int getY (void);
   void rotate (void);
-  void draw (int);
+  void draw (const int&);
 };
 
 //********** Definition ************//
@@ -47,7 +46,7 @@ Point::Point (void):
 
 }
 
-Point::Point (int x, int y):
+Point::Point (const int &x, const int &y):
   x(x), y(y)
 {
 
@@ -62,10 +61,15 @@ Point::getX (void)
 int
 Point::getY (void)
 {
-  return y;
+  return y; 
 }
 
-Asteroid::Asteroid (int x, int y, size_t size):
+Asteroid::Asteroid (void)
+{
+  
+}
+
+Asteroid::Asteroid (const int &x, const int &y, const size_t &size):
   position (Point (x, y)), size (size)
 {
   vertex[0] = Point ( 1   , 25 );
@@ -78,11 +82,15 @@ Asteroid::Asteroid (int x, int y, size_t size):
   vertex[7] = Point (-22  , -5 );
   vertex[8] = Point (-30  ,  5 );
   vertex[9] = Point (-25  , 15 );
-
+  for(int i=0;i<10;i++)
+  {
+    vertex[i].x = vertex[i].x*size;
+    vertex[i].y = vertex[i].y*size;
+  }
   rotation = -1;
 }
 
-Asteroid::Asteroid (Point p, int size):
+Asteroid::Asteroid (const Point &p, const int &size):
   position (p),
   size (size)
 {
@@ -90,22 +98,25 @@ Asteroid::Asteroid (Point p, int size):
 }
 
 Point 
-Asteroid::getVertex (size_t index)
+Asteroid::getVertex (const size_t &index)
 {
   if (index < 0 || index > 10)
-    {
-      return Point ();
-    }
+  {
+    return Point ();
+  }
+  int in;
   if( index > 9 )
   {
-    index = 0;
+    in = 0;
+  }
+  else
+  {
+    in = index;
   }
   int
-  xv = position.x + vertex[index].x;
-  xv *= size;
+  xv = position.x + vertex[in].x ;
   int
-  yv = position.y + vertex[index].y;
-  yv *= size;
+  yv = position.y + vertex[in].y ;
   return Point (xv, yv);
 }
 
@@ -124,48 +135,73 @@ Asteroid::getY (void)
 void
 Asteroid::rotate ( void )
 {
-  double pi = acos(-1);
-  double angle = 1.0*(5/size);
+  double angle = 5.0*(3/size);
   for ( size_t i = 0; i < 10; i++ )
   {
     int x = vertex[i].x;
     int y = vertex[i].y;
-    vertex[i].x = (int) round(x*cos(angle/180*pi)-y*sin(angle/180*pi));
-    vertex[i].y = (int) round(y*cos(angle/180*pi)+x*sin(angle/180*pi));
+    vertex[i].x = ceil(x*cos( (angle/180)*pi)-y*sin( (angle/180)*pi));
+    vertex[i].y = ceil(y*cos( (angle/180)*pi)+x*sin( (angle/180)*pi));
   }
 }
 
 void
-Asteroid::draw (int time)
+Asteroid::draw (const int &frame)
 {
   double speed = 6 / size;
   for (int i = 0; i < 10; i++)
   {
-     gfx_line (time * speed + getVertex (i).x, time * speed + getVertex (i).y,
-               time * speed + getVertex (i+1).x, time * speed + getVertex (i+1).y);
+     gfx_line (frame * speed + getVertex (i).x,
+	             frame * speed + getVertex (i).y,
+               frame * speed + getVertex (i+1).x,
+	             frame * speed + getVertex (i+1).y);
   }
   rotate();
 }
 
 //********** IMPLEMENTACION **********//
 
+#include <vector>
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
 int
 main (int argc, char *argv[])
 {
-  gfx_open (800, 600, "Asteroids");
+  if( argc < 2 )
+  {
+    cout << "\033[1;32masteroids:\033[0m \033[1;31mfatal error:\033[0m not enough arguments\nUsage:\n\tmain \e[4masteroid number\e[0m"<< endl;
+    return 1;
+  }
+  int n = atoi (argv[1]);
+  srand( time(NULL) );
+  gfx_open (1440, 900, "Asteroids");
   gfx_color (0, 200, 100);
-  Asteroid a (0, 100, 3);
+  vector<Asteroid> asteroid;
+  for(int i=0;i < n;i++)
+  {
+    asteroid.push_back( Asteroid( rand()%1280, rand()%720+1, rand()%2+1 ) );
+  }
+  Asteroid a (200, 300, 4);
   Asteroid b (100, 0, 2);
-  Asteroid c (0, 0, 1);
-
-  for (int time = 0; time < 300; time++)
+  Asteroid c (50, 50, 1);
+  
+  for (int frame = 0; frame < 240; frame++)
     {
       gfx_clear ();
-      a.draw (time);
-      b.draw (time);
-      c.draw (time);
+      for(int i = 0; i < asteroid.size(); i++)
+      {
+        asteroid.at(i).draw(frame);
+      }
+      a.draw(frame);
+      b.draw(frame);
+      c.draw(frame);
       gfx_flush ();
-      usleep (16666);
+      usleep (16000);
     }
   return 0;
 }
+
