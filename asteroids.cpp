@@ -183,7 +183,7 @@ main (int argc, char *argv[])
   vector<Asteroid> asteroid;
   for(int i=0;i < n;i++)
   {
-    asteroid.push_back( Asteroid( rand()%1280, rand()%720+1, rand()%3+1 ) );
+    asteroid.push_back( Asteroid( rand()%1280+100, rand()%720+100, rand()%3+1 ) );
   }
   //Asteroid a (-100, -100, 3);
   

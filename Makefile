@@ -1,5 +1,5 @@
 all: main
-
+	@echo Done
 gfx:	gfx.c gfx.h
 	gcc -c gfx.c -o obj/gfx.o
 anim:	anim.cpp
