@@ -183,11 +183,9 @@ main (int argc, char *argv[])
   vector<Asteroid> asteroid;
   for(int i=0;i < n;i++)
   {
-    asteroid.push_back( Asteroid( rand()%1280, rand()%720+1, rand()%2+1 ) );
+    asteroid.push_back( Asteroid( rand()%1280, rand()%720+1, rand()%3+1 ) );
   }
-  Asteroid a (200, 300, 4);
-  Asteroid b (100, 0, 2);
-  Asteroid c (50, 50, 1);
+  //Asteroid a (-100, -100, 3);
   
   for (int frame = 0; frame < 240; frame++)
     {
@@ -196,9 +194,7 @@ main (int argc, char *argv[])
       {
         asteroid.at(i).draw(frame);
       }
-      a.draw(frame);
-      b.draw(frame);
-      c.draw(frame);
+      //a.draw(frame);
       gfx_flush ();
       usleep (16000);
     }
