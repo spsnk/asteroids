@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <cmath>
+#include <cstdlib>
 #include "gfx.h"
 
 //********** Declaration ************//
@@ -10,13 +11,13 @@ class Point
 {
   friend class Asteroid;
 private:
-  int x;
-  int y;
+  float x;
+  float y;
 public:
   Point (void);
-  Point (const int&, const int&);
-  int getX (void);
-  int getY (void);
+  Point (const float&, const float&);
+  float getX (void);
+  float getY (void);
 };
 
 class Asteroid
@@ -24,7 +25,9 @@ class Asteroid
 private:
   size_t size;
   int rotation;
-  const double pi = acos(-1);
+  int speed;
+  float angle;
+  const float pi = acos(-1);
   Point vertex[10];
   Point position;
   Point getVertex (const size_t&);
@@ -32,10 +35,11 @@ public:
   Asteroid (void);
   Asteroid (const int&, const int&, const size_t&);
   Asteroid (const Point&, const int&);
-  int getX (void);
-  int getY (void);
+  float getX (void);
+  float getY (void);
+  void check_bounds (void);
   void rotate (void);
-  void draw (const int&);
+  void draw ();
 };
 
 //********** Definition ************//
@@ -46,19 +50,19 @@ Point::Point (void):
 
 }
 
-Point::Point (const int &x, const int &y):
+Point::Point (const float &x, const float &y):
   x(x), y(y)
 {
 
 }
 
-int
+float
 Point::getX (void)
 {
   return x;
 }
 
-int
+float
 Point::getY (void)
 {
   return y; 
@@ -87,7 +91,9 @@ Asteroid::Asteroid (const int &x, const int &y, const size_t &size):
     vertex[i].x = vertex[i].x*size;
     vertex[i].y = vertex[i].y*size;
   }
-  rotation = -1;
+  rotation = rand()%2==0?1:-1;
+  speed = 6/size;
+  angle = 1.0*(6/size);
 }
 
 Asteroid::Asteroid (const Point &p, const int &size):
@@ -113,53 +119,75 @@ Asteroid::getVertex (const size_t &index)
   {
     in = index;
   }
-  int
+  float
   xv = position.x + vertex[in].x ;
-  int
+  float
   yv = position.y + vertex[in].y ;
   return Point (xv, yv);
 }
 
-int
+float
 Asteroid::getX (void)
 {
   return position.getX ();
 }
 
-int
+float
 Asteroid::getY (void)
 {
   return position.getY ();
 }
 
 void
-Asteroid::rotate ( void )
+Asteroid::rotate (void)
 {
-  double angle = 5.0*(3/size);
   for ( size_t i = 0; i < 10; i++ )
   {
-    int x = vertex[i].x;
-    int y = vertex[i].y;
-    vertex[i].x = ceil(x*cos( (angle/180)*pi)-y*sin( (angle/180)*pi));
-    vertex[i].y = ceil(y*cos( (angle/180)*pi)+x*sin( (angle/180)*pi));
+    float x = vertex[i].x;
+    float y = vertex[i].y;
+    vertex[i].x = (x*cos( (angle/180)*pi) - (y*sin( (angle/180)*pi))*rotation );
+    vertex[i].y = (y*cos( (angle/180)*pi) + (x*sin( (angle/180)*pi))*rotation );
   }
 }
 
 void
-Asteroid::draw (const int &frame)
+Asteroid::check_bounds (void)
 {
-  double speed = 6 / size;
-  for (int i = 0; i < 10; i++)
+  if( getX() > 1300 ) 
   {
-     gfx_line (frame * speed + getVertex (i).x,
-	             frame * speed + getVertex (i).y,
-               frame * speed + getVertex (i+1).x,
-	             frame * speed + getVertex (i+1).y);
+    position.x = -20;
   }
-  rotate();
+  else if ( getX() < -20 )
+  {
+    position.x = 1300;
+  }
+  if( getY() > 740 )
+  {
+    position.y = -20;
+  }
+  else if ( getY() < -20 )
+  {
+    position.y = 740;
+  }
 }
 
-//********** IMPLEMENTACION **********//
+void
+Asteroid::draw (void)
+{
+  position.x += speed;
+  position.y += speed;
+  for (int i = 0; i < 10; i++)
+  {
+     gfx_line (getVertex (i).x,
+	             getVertex (i).y,
+               getVertex (i+1).x,
+	             getVertex (i+1).y);
+  }
+  rotate();
+  check_bounds();
+}
+
+//********** Implementation **********//
 
 #include <vector>
 #include <iostream>
@@ -178,26 +206,29 @@ main (int argc, char *argv[])
   }
   int n = atoi (argv[1]);
   srand( time(NULL) );
-  gfx_open (1440, 900, "Asteroids");
-  gfx_color (0, 200, 100);
+  gfx_open (1280, 720, "Asteroids");
+  gfx_color (7, 242, 255);
   vector<Asteroid> asteroid;
   for(int i=0;i < n;i++)
   {
-    asteroid.push_back( Asteroid( rand()%1280+100, rand()%720+100, rand()%3+1 ) );
+    asteroid.push_back( Asteroid( rand()%1280, rand()%720, rand()%3+1 ) );
   }
-  //Asteroid a (-100, -100, 3);
-  
-  for (int frame = 0; frame < 240; frame++)
+  clock_t begin;
+  clock_t end;
+  for (int frame = 0; frame <= 1000; frame++)
     {
+      begin = clock();
       gfx_clear ();
-      for(int i = 0; i < asteroid.size(); i++)
+      for(int i = 0; i < n; i++)
       {
-        asteroid.at(i).draw(frame);
+        asteroid[i].draw();
       }
-      //a.draw(frame);
       gfx_flush ();
-      usleep (16000);
+      end = clock();
+      cout << frame << " frames drawn. Frame time: " << end-begin << '\r' << flush;
+      usleep (16666);
     }
+    cout << endl;
   return 0;
 }
 
