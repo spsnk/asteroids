@@ -30,6 +30,7 @@ private:
   const float pi = acos(-1);
   Point vertex[10];
   Point position;
+  Point direction;
   Point getVertex (const size_t&);
 public:
   Asteroid (void);
@@ -41,6 +42,35 @@ public:
   void rotate (void);
   void draw ();
 };
+
+
+const int shape [7][10][2] =
+{
+  { {1,25},{10,20},{20,10},{20,-6},{15,-20},{1,-15},{-12,-20},{-22,-5},{-30,5},{-25,15} },
+  { {0,20},{10,15},{15,5},{10,-10},{5,-15},{-5,-5},{-14,0},{-20,10},{-15,20},{-10,30} },
+  { {0,35},{5,30},{10,15},{5,5},{0,-10},{-15,0},{-20,10},{-10,25},{-15,35},{-5,45} },
+  { {0,35},{8,37},{20,40},{20,25},{10,10},{-10,10},{-25,20},{-20,30},{-25,40},{-15,45} },
+  { {-10,20},{5,5},{20,0},{20,-10},{5,-20},{-10,-15},{-15,0},{-30,5},{-25,15},{-15,15} },
+  { {30,30},{40,20},{30,0},{30,-20},{-10,-40},{-30,-30},{-40,10},{-40,20},{-18,29},{0,40} },
+  { {-30,10},{-20,30},{0,40},{10,20},{20,0},{10,-20},{-10,-40},{-30,-30},{-20,-10},{-30,0} }
+};
+
+const int route [12][2] = 
+{
+  { 2, 1},
+  { 1, 2},
+  {-1, 2},
+  {-2, 1},
+  {-2,-1},
+  {-1,-2},
+  { 1,-2},
+  { 2,-1},
+  { 1, 1},
+  {-1, 1},
+  {-1,-1},
+  { 1,-1}
+};
+
 
 //********** Definition ************//
 
@@ -76,24 +106,18 @@ Asteroid::Asteroid (void)
 Asteroid::Asteroid (const int &x, const int &y, const size_t &size):
   position (Point (x, y)), size (size)
 {
-  vertex[0] = Point ( 1   , 25 );
-  vertex[1] = Point ( 10  , 20 );
-  vertex[2] = Point ( 20  , 10 );
-  vertex[3] = Point ( 20  , -6 );
-  vertex[4] = Point ( 15  ,-20 );
-  vertex[5] = Point (  1  ,-15 );
-  vertex[6] = Point (-12  ,-20 );
-  vertex[7] = Point (-22  , -5 );
-  vertex[8] = Point (-30  ,  5 );
-  vertex[9] = Point (-25  , 15 );
-  for(int i=0;i<10;i++)
+  int d = rand()%7;
+  for(size_t i = 0; i < 10 ; i++)
   {
-    vertex[i].x = vertex[i].x*size;
-    vertex[i].y = vertex[i].y*size;
+    int x = shape[d][i][0] * size;
+    int y = shape[d][i][1] * size;
+    vertex[i] = Point ( x , y );
   }
   rotation = rand()%2==0?1:-1;
-  speed = 6/size;
-  angle = 1.0*(6/size);
+  speed = 3/size;
+  angle = 0.5*(6.0/size);
+  int r = rand()%12;
+  direction = Point (route[r][0], route[r][1]);
 }
 
 Asteroid::Asteroid (const Point &p, const int &size):
@@ -174,8 +198,8 @@ Asteroid::check_bounds (void)
 void
 Asteroid::draw (void)
 {
-  position.x += speed;
-  position.y += speed;
+  position.x += speed*direction.getX();
+  position.y += speed*direction.getY();
   for (int i = 0; i < 10; i++)
   {
      gfx_line (getVertex (i).x,
