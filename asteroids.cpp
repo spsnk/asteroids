@@ -55,26 +55,6 @@ const int shape [8][10][2] =
   { {-12,8},{-14,-14},{-7,-24},{11,-27},{15,-14},{13,0},{15,15},{10,25},{-4,28},{-14,15} }
 };
 
-const int route [16][2] =
-{
-  { 1, 1},
-  { 2, 1},
-  { 1, 2},
-  {-1, 1},
-  {-1, 2},
-  {-2, 1},
-  {-2,-1},
-  {-1,-1},
-  {-1,-2},
-  { 1,-2},
-  { 2,-1},
-  { 1,-1},
-  { 1, 0},
-  { 0, 1},
-  {-1, 0},
-  { 0,-1}
-};
-
 const float pi = acos(-1);
 
 //********** Definition ************//
@@ -121,8 +101,7 @@ Asteroid::Asteroid (const int &x, const int &y, const size_t &size):
   rotation = rand()%2==0?1:-1;
   speed = 5 - size;
   angle = 0.5*(6.0/size);
-  int r = rand()%16;
-  direction = Point (route[r][0], route[r][1]);
+  direction = Point (rand()%5-2, rand()%5-2);
 }
 
 Asteroid::Asteroid (const Point &p, const int &size):
@@ -207,10 +186,8 @@ Asteroid::draw (void)
   position.y += speed*direction.getY();
   for (int i = 0; i < 10; i++)
     {
-      gfx_line (getVertex (i).x,
-                getVertex (i).y,
-                getVertex (i+1).x,
-                getVertex (i+1).y);
+      gfx_line (getVertex (i).x, getVertex (i).y,
+                getVertex (i+1).x, getVertex (i+1).y);
     }
   rotate();
   check_bounds();
@@ -230,7 +207,7 @@ main (int argc, char *argv[])
 {
   if( argc < 2 )
     {
-      cout << "\033[1;32masteroids:\033[0m \033[1;31mfatal error:\033[0m not enough arguments\nUsage:\n\tmain \e[4masteroid number\e[0m"<< endl;
+      cout << "\033[1;32masteroids:\033[0m \033[1;31mfatal error:\033[0m not enough arguments\nUsage:\n\t\033[1;32masteroids:\033[0m \e[4masteroid number\e[0m"<< endl;
       return 1;
     }
   int n = atoi (argv[1]);
