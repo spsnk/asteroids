@@ -27,7 +27,6 @@ private:
   int rotation;
   int speed;
   float angle;
-  const float pi = acos(-1);
   Point vertex[10];
   Point position;
   Point direction;
@@ -76,6 +75,7 @@ const int route [16][2] =
   { 0,-1}
 };
 
+const float pi = acos(-1);
 
 //********** Definition ************//
 
@@ -119,7 +119,7 @@ Asteroid::Asteroid (const int &x, const int &y, const size_t &size):
       vertex[i] = Point ( x, y );
     }
   rotation = rand()%2==0?1:-1;
-  speed = 4 - size;
+  speed = 5 - size;
   angle = 0.5*(6.0/size);
   int r = rand()%16;
   direction = Point (route[r][0], route[r][1]);
