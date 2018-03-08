@@ -213,6 +213,8 @@ main (int argc, char *argv[])
   }
   clock_t begin;
   clock_t end;
+  cout.precision(6);
+  cout << fixed;
   for (int frame = 0; true ; frame++)
   {
     begin = clock();
