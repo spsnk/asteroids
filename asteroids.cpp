@@ -32,7 +32,6 @@ private:
   Point direction;
   Point getVertex (const size_t&);
 public:
-  Asteroid (void);
   Asteroid (const int&, const int&, const size_t&);
   float getX (void);
   float getY (void);
@@ -80,11 +79,6 @@ float
 Point::getY (void)
 {
   return y;
-}
-
-Asteroid::Asteroid (void)
-{
-
 }
 
 Asteroid::Asteroid (const int &x, const int &y, const size_t &size):
