@@ -92,7 +92,7 @@ Asteroid::Asteroid (const int &x, const int &y, const size_t &size):
     vertex[i] = Point ( x, y );
   }
   rotation = rand()%2==0?1:-1;
-  speed = 4 - size;
+  speed = 7 - size*2;
   angle = 0.5*(6.0/size);
   direction = Point (rand()%5-2, rand()%5-2);
 }
